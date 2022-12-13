@@ -1,5 +1,5 @@
 .ipynb_checkpoints/
-data/
+data/bbc_news/
 *pyc
 *pth
 wandb/

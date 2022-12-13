@@ -9,6 +9,7 @@ this_repo/
     bert_bbc_bestover50.pth
     ...
 ```
+Download datasets and trained models from [here](https://uark-my.sharepoint.com/:f:/g/personal/minht_uark_edu/EgnqPZOKMH5MgipwJd_1hfcBq5IXjeVrIY7fGBz24mVaFg?e=7q7X4J)
 ## To train
 e.g.
 ```
