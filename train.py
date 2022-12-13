@@ -13,7 +13,7 @@ import sys
 import logging
 import copy
 import time
-
+import wandb
 logger = logging.getLogger()
 
 def parse_args(in_args=None):
@@ -30,6 +30,9 @@ def parse_args(in_args=None):
         required=True,
         help="specify datasets",
     )
+    
+    parser.add_argument('--epochs', type=int,  default=5,
+                            help='number of epoch')
 
     return parser.parse_args(in_args)
 
@@ -42,8 +45,11 @@ def accuracy(output, labels):
 if __name__=='__main__':
     args = parse_args()
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
+    print(device)
     
+    # log
+    wandb.init(project="snlp-final-project", entity="trqminh")
+
     # dataset
     if args.dataset == 'bbc':
         label_names = ['entertainment', 'business', 'sport', 'politics', 'tech']
@@ -57,10 +63,12 @@ if __name__=='__main__':
     else:
         model = CustomBertForSequenceClassification(num_classes=num_classes)
 
+    model = model.to(device)
     print('Model param: ', model.count_params())
 
-    train_loader = DataLoader(dataset=train_bbc_news_dataset, batch_size=64, shuffle=True, num_workers=4)
-    test_loader = DataLoader(dataset=test_bbc_news_dataset, batch_size=64, shuffle=True, num_workers=4)
+    batch_size = 64
+    train_loader = DataLoader(dataset=train_bbc_news_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    test_loader = DataLoader(dataset=test_bbc_news_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5000, 10000, 15000], gamma=0.5)
@@ -70,7 +78,7 @@ if __name__=='__main__':
     loss_list = []
     acc_list = []
 
-    epochs = 5
+    epochs = args.epochs
     itr = 1
     p_itr = 10
 
@@ -96,9 +104,11 @@ if __name__=='__main__':
                 print('[Epoch {}/{}] Iteration {} -> Train Loss: {:.4f}, train_acc: {:.3f}'\
                         .format(epoch + 1, epochs, itr, total_loss / p_itr, total_acc / p_itr))
           
+                wandb.log({"loss":  total_loss / p_itr, "train_accuracy": total_acc / p_itr})
                 loss_list.append(total_loss / p_itr)
                 acc_list.append(total_acc / p_itr)
                 total_loss, total_acc = 0, 0
+
 
             itr += 1
 
@@ -124,5 +134,5 @@ if __name__=='__main__':
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     print('best acc on test set: ', best_acc/len(test_loader))
     model.load_state_dict(best_model_wts)
-    torch.save(model.state_dict(), './{}_{}.pth'.format(args.model, args.dataset)) 
+    torch.save(model.state_dict(), './trained_models/{}_{}_bestover{}.pth'.format(args.model, args.dataset, args.epochs))
     print('Done!')
