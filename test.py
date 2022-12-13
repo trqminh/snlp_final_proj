@@ -14,6 +14,7 @@ import logging
 import copy
 import time
 import wandb
+from sklearn.metrics import f1_score
 logger = logging.getLogger()
 
 def parse_args(in_args=None):
@@ -40,6 +41,11 @@ def accuracy(output, labels):
     pred = torch.argmax(output, dim=1)
     correct = pred.eq(labels)
     return torch.mean(correct.float())
+
+
+def compute_f1_score(output, labels):
+    pred = torch.argmax(output, dim=1)
+    return f1_score(pred.cpu().numpy(), labels.cpu().numpy(),average='weighted')
 
 
 if __name__=='__main__':
@@ -71,14 +77,22 @@ if __name__=='__main__':
 
     # test
     test_acc = 0
+    test_f1 = 0
     since = time.time()
     for samples, labels in test_loader:
         with torch.no_grad():
             samples, labels = samples.to(device), labels.to(device)
             output = model(samples)[0]
             test_acc += accuracy(output, labels)
+            test_f1 += compute_f1_score(output, labels)
 
-    print('Accuracy on test set: {}%'.format(round(test_acc.item()*100.0/len(test_loader), 2)))
+    print('Accuracy on test set: {}%'.format(
+            round(test_acc.item()*100.0/len(test_loader), 2))
+        )
+
+    print('F1-score on test set: {}%'.format(
+            round(test_f1.item()*100.0/len(test_loader), 2))
+        )
     
     time_elapsed = time.time() - since
     print('Test complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
