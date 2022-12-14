@@ -1,4 +1,6 @@
 # snlp_final_proj
+## Project logs
+View project training logs [here](https://wandb.ai/trqminh/snlp-final-project?workspace=user-trqminh)
 ## Datasets and train models
 ```
 this_repo/
