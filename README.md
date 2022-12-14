@@ -7,9 +7,12 @@ this_repo/
 
   trained_models/
     bert_bbc_bestover50.pth
+    distilbert_bbc_bestover50.pth
+    bert_imdb_bestover50.pth
+    distilbert_imdb_bestover50.pth
     ...
 ```
-Download datasets and trained models from [here](https://uark-my.sharepoint.com/:f:/g/personal/minht_uark_edu/EgnqPZOKMH5MgipwJd_1hfcBq5IXjeVrIY7fGBz24mVaFg?e=7q7X4J)
+Download datasets and trained models from [here](https://uark-my.sharepoint.com/:f:/g/personal/minht_uark_edu/EgnqPZOKMH5MgipwJd_1hfcBq5IXjeVrIY7fGBz24mVaFg?e=7q7X4J). For aclImdb_v1 dataset, download the dataset from [here](https://ai.stanford.edu/~amaas/data/sentiment/)
 ## To train
 e.g.
 ```

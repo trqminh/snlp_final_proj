@@ -26,7 +26,7 @@ def parse_args(in_args=None):
     )
     parser.add_argument(
         "--dataset",
-        choices=["bbc"],
+        choices=["bbc", "imdb"],
         required=True,
         help="specify datasets",
     )
@@ -56,6 +56,12 @@ if __name__=='__main__':
         num_classes = len(label_names)
         train_dataset = train_bbc_news_dataset
         test_datsaet = test_bbc_news_dataset
+        collate_fn = None
+
+    if args.dataset == 'imdb':
+        num_classes = 10
+        from imdb_dataset import train_imdb_dataset, test_imdb_dataset, pad_and_pack
+        collate_fn = pad_and_pack
 
     # model
     if args.model == 'distilbert':
@@ -67,8 +73,8 @@ if __name__=='__main__':
     print('Model param: ', model.count_params())
 
     batch_size = 64
-    train_loader = DataLoader(dataset=train_bbc_news_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
-    test_loader = DataLoader(dataset=test_bbc_news_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    train_loader = DataLoader(dataset=train_bbc_news_dataset, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=collate_fn)
+    test_loader = DataLoader(dataset=test_bbc_news_dataset, batch_size=batch_size, shuffle=False, num_workers=4, collate_fn=collate_fn)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5000, 10000, 15000], gamma=0.5)

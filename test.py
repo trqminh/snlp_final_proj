@@ -27,7 +27,7 @@ def parse_args(in_args=None):
     )
     parser.add_argument(
         "--dataset",
-        choices=["bbc"],
+        choices=["bbc", "imdb"],
         required=True,
         help="specify datasets",
     )
@@ -52,6 +52,7 @@ if __name__=='__main__':
     
     args = parse_args()
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     print(device)
     
     # dataset
@@ -59,9 +60,14 @@ if __name__=='__main__':
         label_names = ['entertainment', 'business', 'sport', 'politics', 'tech']
         num_classes = len(label_names)
         test_datsaet = test_bbc_news_dataset
+        collate_fn = None
+    elif args.dataset == 'imdb':
+        num_classes = 10
+        from imdb_dataset import train_imdb_dataset, test_imdb_dataset, pad_and_pack
+        collate_fn = pad_and_pack
     
-    batch_size=64
-    test_loader = DataLoader(dataset=test_bbc_news_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    batch_size=1
+    test_loader = DataLoader(dataset=test_bbc_news_dataset, batch_size=batch_size, shuffle=False, num_workers=4, collate_fn=collate_fn)
 
     # model
     if args.model == 'distilbert':
